@@ -23,7 +23,6 @@ def simulate
 end
 
 def coordinates_from_geojson
-  hash = {}
   file = File.open(GEOJSON_FILE)
   hash = JSON.parse(file.read)
   hash['features'].first['geometry']['coordinates']
