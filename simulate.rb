@@ -24,9 +24,8 @@ end
 
 def coordinates_from_geojson
   hash = {}
-  File.open(GEOJSON_FILE) do |file|
-    hash = JSON.load(file)
-  end
+  file = File.open(GEOJSON_FILE)
+  hash = JSON.parse(file.read)
   hash['features'].first['geometry']['coordinates']
 end
 
