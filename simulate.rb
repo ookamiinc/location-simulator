@@ -1,5 +1,9 @@
 require 'json'
+require 'firebase'
 require 'byebug'
+
+FIREBASE_BASE_URI = 'https://yourprojectid.firebaseio.com/'.freeze
+FIREBASE_PRIVATE_KEY_JSON = 'firebase-adminsdk.json'.freeze
 
 GEOJSON_FILE = 'okayama.geojson'.freeze
 
@@ -43,6 +47,10 @@ def distance(loc1, loc2)
   c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 
   rm * c # Delta in meters
+end
+
+def firebase
+  @firebase ||= Firebase::Client.new(FIREBASE_BASE_URI, File.open(FIREBASE_PRIVATE_KEY_JSON).read)
 end
 
 simulate
