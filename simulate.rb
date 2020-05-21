@@ -22,6 +22,7 @@ def simulate
     if last_lat && last_long
       d = distance([last_lat, last_long], [latitude, longitude])
     end
+    sleep(rand(1.0..1.5))
     firebase.push("v1/locations/#{COMPETITION_ID}/#{CAR_ID}", {
       latitude: latitude,
       longitude: longitude,
