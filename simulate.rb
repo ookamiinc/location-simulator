@@ -7,6 +7,9 @@ FIREBASE_PRIVATE_KEY_JSON = 'firebase-adminsdk.json'.freeze
 
 GEOJSON_FILE = 'okayama.geojson'.freeze
 
+COMPETITION_ID = 1
+CAR_ID = 1
+
 def simulate
   last_lat = nil
   last_long = nil
@@ -19,7 +22,13 @@ def simulate
     if last_lat && last_long
       d = distance([last_lat, last_long], [latitude, longitude])
     end
-    puts "#{latitude},#{longitude},#{d}"
+    firebase.push("v1/locations/#{COMPETITION_ID}/#{CAR_ID}", {
+      latitude: latitude,
+      longitude: longitude,
+      speed: d,
+      timestamp: Time.now.to_f,
+      course: -1
+    })
 
     last_lat = latitude
     last_long = longitude
