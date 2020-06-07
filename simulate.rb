@@ -6,7 +6,6 @@ FIREBASE_BASE_URI = 'https://yourprojectid.firebaseio.com/'.freeze
 FIREBASE_PRIVATE_KEY_JSON = 'firebase-adminsdk.json'.freeze
 
 GEOJSON_FILE = 'okayama.geojson'.freeze
-FUJI_JSON_FILE = 'fuji.json'.freeze
 
 COMPETITION_ID = 1
 CAR_ID = 1
@@ -37,12 +36,12 @@ def simulate
   end
 end
 
-def simulate_fuji
-  file = File.open(FUJI_JSON_FILE)
+def simulate_fuji(car_id)
+  file = File.open("fuji-#{car_id}.json")
   hash = JSON.parse(file.read)
-  hash.each do |_, v|
+  hash.each do |v|
     sleep(rand(1.0..1.5))
-    firebase.push("v1/locations/#{COMPETITION_ID}/#{CAR_ID}", {
+    firebase.push("v1/locations/#{COMPETITION_ID}/#{car_id}", {
       latitude: v['latitude'],
       longitude: v['longitude'],
       speed: v['speed'],
@@ -79,4 +78,4 @@ def firebase
   @firebase ||= Firebase::Client.new(FIREBASE_BASE_URI, File.open(FIREBASE_PRIVATE_KEY_JSON).read)
 end
 
-simulate_fuji
+simulate_fuji(23)
