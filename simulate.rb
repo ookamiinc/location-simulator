@@ -78,4 +78,10 @@ def firebase
   @firebase ||= Firebase::Client.new(FIREBASE_BASE_URI, File.open(FIREBASE_PRIVATE_KEY_JSON).read)
 end
 
-simulate_fuji(23)
+threads = []
+threads << Thread.new { simulate_fuji(3) }
+threads << Thread.fork { simulate_fuji(20) }
+threads << Thread.fork { simulate_fuji(23) }
+threads << Thread.fork { simulate_fuji(24) }
+threads << Thread.fork { simulate_fuji(25) }
+threads.each { |t| t.join }
