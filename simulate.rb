@@ -51,6 +51,16 @@ def simulate_fuji(car_id)
   end
 end
 
+def simulate_fuji_5_cars
+  threads = []
+  threads << Thread.new { simulate_fuji(3) }
+  threads << Thread.fork { simulate_fuji(20) }
+  threads << Thread.fork { simulate_fuji(23) }
+  threads << Thread.fork { simulate_fuji(24) }
+  threads << Thread.fork { simulate_fuji(25) }
+  threads.each { |t| t.join }
+end
+
 def coordinates_from_geojson
   file = File.open(GEOJSON_FILE)
   hash = JSON.parse(file.read)
@@ -78,10 +88,4 @@ def firebase
   @firebase ||= Firebase::Client.new(FIREBASE_BASE_URI, File.open(FIREBASE_PRIVATE_KEY_JSON).read)
 end
 
-threads = []
-threads << Thread.new { simulate_fuji(3) }
-threads << Thread.fork { simulate_fuji(20) }
-threads << Thread.fork { simulate_fuji(23) }
-threads << Thread.fork { simulate_fuji(24) }
-threads << Thread.fork { simulate_fuji(25) }
-threads.each { |t| t.join }
+simulate_fuji_5_cars
