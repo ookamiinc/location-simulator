@@ -10,7 +10,7 @@ GEOJSON_FILE = 'okayama.geojson'.freeze
 COMPETITION_ID = 1
 CAR_ID = 1
 
-def simulate
+def simulate(car_id)
   last_lat = nil
   last_long = nil
   d = 0
@@ -23,7 +23,7 @@ def simulate
       d = distance([last_lat, last_long], [latitude, longitude])
     end
     sleep(rand(1.0..1.5))
-    firebase.push("v1/locations/#{COMPETITION_ID}/#{CAR_ID}", {
+    firebase.push("v1/locations/#{COMPETITION_ID}/#{car_id}", {
       latitude: latitude,
       longitude: longitude,
       speed: d,
@@ -34,6 +34,15 @@ def simulate
     last_lat = latitude
     last_long = longitude
   end
+end
+
+def simulate_25_cars
+  threads = []
+  threads << Thread.new { simulate(1) }
+  (2..25).each do |i|
+    threads << Thread.fork { simulate(i) }
+  end
+  threads.each { |t| t.join }
 end
 
 def simulate_fuji(car_id)
@@ -88,4 +97,4 @@ def firebase
   @firebase ||= Firebase::Client.new(FIREBASE_BASE_URI, File.open(FIREBASE_PRIVATE_KEY_JSON).read)
 end
 
-simulate_fuji_5_cars
+simulate_25_cars
