@@ -45,6 +45,15 @@ def simulate_25_cars
   threads.each { |t| t.join }
 end
 
+def simulate_okayama_cars
+  threads = []
+  threads << Thread.new { simulate(1) }
+  [6, 15, 20, 21, 24, 25, 31, 36, 51, 60, 77, 98].each do |i|
+    threads << Thread.fork { simulate(i) }
+  end
+  threads.each { |t| t.join }
+end
+
 def simulate_fuji(car_id)
   file = File.open("fuji-#{car_id}.json")
   hash = JSON.parse(file.read)
