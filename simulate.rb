@@ -10,6 +10,8 @@ GEOJSON_FILE = 'okayama.geojson'.freeze
 COMPETITION_ID = 1
 CAR_ID = 1
 
+OKAYAMA_CARS = [15, 20, 21, 24, 25, 31, 36, 51, 60, 77, 98]
+
 def simulate(car_id, number_of_same_location = 1, delay = 0, use_same_time_for_same_location = true)
   last_lat = nil
   last_long = nil
@@ -51,36 +53,32 @@ end
 
 def simulate_okayama_cars
   threads = []
-  threads << Thread.new { simulate(1) }
-  [6, 15, 20, 21, 24, 25, 31, 36, 51, 60, 77, 98].each do |i|
-    threads << Thread.fork { simulate(i) }
+  OKAYAMA_CARS.each do |i|
+    threads << Thread.new { simulate(i) }
   end
   threads.each { |t| t.join }
 end
 
 def simulate_okayama_cars_with_delay
   threads = []
-  threads << Thread.new { simulate(1, 1, 0.01) }
-  [6, 15, 20, 21, 24, 25, 31, 36, 51, 60, 77, 98].each do |i|
-    threads << Thread.fork { simulate(i, 1, i * 0.01) }
+  OKAYAMA_CARS.each do |i|
+    threads << Thread.new { simulate(i, 1, i * 0.01) }
   end
   threads.each { |t| t.join }
 end
 
 def simulate_okayama_cars_with_same_location_on_same_time
   threads = []
-  threads << Thread.new { simulate(1, 3, 0.01) }
-  [6, 15, 20, 21, 24, 25, 31, 36, 51, 60, 77, 98].each do |i|
-    threads << Thread.fork { simulate(i, 3, i * 0.01) }
+  OKAYAMA_CARS.each do |i|
+    threads << Thread.new { simulate(i, 3, i * 0.01) }
   end
   threads.each { |t| t.join }
 end
 
 def simulate_okayama_cars_with_same_location_on_different_time
   threads = []
-  threads << Thread.new { simulate(1, 3, 0.01, false) }
-  [6, 15, 20, 21, 24, 25, 31, 36, 51, 60, 77, 98].each do |i|
-    threads << Thread.fork { simulate(i, 3, i * 0.01, false) }
+  OKAYAMA_CARS.each do |i|
+    threads << Thread.new { simulate(i, 3, i * 0.01, false) }
   end
   threads.each { |t| t.join }
 end
