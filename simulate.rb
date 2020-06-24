@@ -58,6 +58,33 @@ def simulate_okayama_cars
   threads.each { |t| t.join }
 end
 
+def simulate_okayama_cars_with_delay
+  threads = []
+  threads << Thread.new { simulate(1, 1, 0.01) }
+  [6, 15, 20, 21, 24, 25, 31, 36, 51, 60, 77, 98].each do |i|
+    threads << Thread.fork { simulate(i, 1, i * 0.01) }
+  end
+  threads.each { |t| t.join }
+end
+
+def simulate_okayama_cars_with_same_location_on_same_time
+  threads = []
+  threads << Thread.new { simulate(1, 3, 0.01) }
+  [6, 15, 20, 21, 24, 25, 31, 36, 51, 60, 77, 98].each do |i|
+    threads << Thread.fork { simulate(i, 3, i * 0.01) }
+  end
+  threads.each { |t| t.join }
+end
+
+def simulate_okayama_cars_with_same_location_on_different_time
+  threads = []
+  threads << Thread.new { simulate(1, 3, 0.01, false) }
+  [6, 15, 20, 21, 24, 25, 31, 36, 51, 60, 77, 98].each do |i|
+    threads << Thread.fork { simulate(i, 3, i * 0.01, false) }
+  end
+  threads.each { |t| t.join }
+end
+
 def simulate_fuji(car_id)
   file = File.open("fuji-#{car_id}.json")
   hash = JSON.parse(file.read)
@@ -110,4 +137,7 @@ def firebase
   @firebase ||= Firebase::Client.new(FIREBASE_BASE_URI, File.open(FIREBASE_PRIVATE_KEY_JSON).read)
 end
 
-simulate_25_cars
+simulate_okayama_cars
+# simulate_okayama_cars_with_delay
+# simulate_okayama_cars_with_same_location_on_same_time
+# simulate_okayama_cars_with_same_location_on_different_time
