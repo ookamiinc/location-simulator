@@ -10,7 +10,7 @@ GEOJSON_FILE = 'okayama.geojson'.freeze
 COMPETITION_ID = 1
 CAR_ID = 1
 
-def simulate(car_id)
+def simulate(car_id, number_of_same_location = 1, delay = 0, use_same_time_for_same_location = true)
   last_lat = nil
   last_long = nil
   d = 0
@@ -22,14 +22,18 @@ def simulate(car_id)
     if last_lat && last_long
       d = distance([last_lat, last_long], [latitude, longitude])
     end
-    sleep(rand(1.0..1.5))
-    firebase.push("v1/locations/#{COMPETITION_ID}/#{car_id}", {
-      latitude: latitude,
-      longitude: longitude,
-      speed: d,
-      timestamp: Time.now.to_f,
-      course: -1
-    })
+    sleep(rand(0.6..0.9) + [0, 1].sample * delay)
+    timestamp = Time.now.to_f
+    number_of_same_location.times do |_i|
+      timestamp = Time.now.to_f unless use_same_time_for_same_location
+      firebase.push("v1/locations/#{COMPETITION_ID}/#{car_id}", {
+        latitude: latitude,
+        longitude: longitude,
+        speed: d,
+        timestamp: timestamp,
+        course: -1
+      })
+    end
 
     last_lat = latitude
     last_long = longitude
