@@ -108,6 +108,50 @@ def simulate_fuji_5_cars
   threads.each { |t| t.join }
 end
 
+def simulate_okayama_json_with_key(car_id)
+  file = File.open("okayama/#{car_id}.json")
+  hash = JSON.parse(file.read)
+  hash.to_a.each_slice(3) do |a|
+    sleep(0.5)
+    timestamp = Time.now.to_f
+    a.to_h.each do |_k, v|
+      firebase.push("v1/locations/#{COMPETITION_ID}/#{car_id}", {
+        latitude: v['latitude'],
+        longitude: v['longitude'],
+        speed: v['speed'],
+        timestamp: timestamp,
+        course: v['course']
+      })
+    end
+  end
+end
+
+def simulate_okayama(car_id)
+  file = File.open("okayama-unique-by-timestamp/#{car_id}.json")
+  hash = JSON.parse(file.read)
+  hash.each do |v|
+    sleep(0.5)
+    timestamp = Time.now.to_f
+    1.times do |_i|
+      firebase.push("v1/locations/#{COMPETITION_ID}/#{car_id}", {
+        latitude: v['latitude'],
+        longitude: v['longitude'],
+        speed: v['speed'],
+        timestamp: timestamp,
+        course: v['course']
+      })
+    end
+  end
+end
+
+def simulate_okayama_11_cars
+  threads = []
+  OKAYAMA_CARS.each do |i|
+    threads << Thread.new { simulate_okayama(i) }
+  end
+  threads.each { |t| t.join }
+end
+
 def coordinates_from_geojson
   file = File.open(GEOJSON_FILE)
   hash = JSON.parse(file.read)
@@ -135,7 +179,8 @@ def firebase
   @firebase ||= Firebase::Client.new(FIREBASE_BASE_URI, File.open(FIREBASE_PRIVATE_KEY_JSON).read)
 end
 
-simulate_okayama_cars
+# simulate_okayama_cars
 # simulate_okayama_cars_with_delay
 # simulate_okayama_cars_with_same_location_on_same_time
 # simulate_okayama_cars_with_same_location_on_different_time
+simulate_okayama_11_cars
