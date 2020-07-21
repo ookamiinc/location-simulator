@@ -129,8 +129,10 @@ end
 def simulate_okayama(car_id)
   file = File.open("okayama-unique-by-timestamp/#{car_id}.json")
   hash = JSON.parse(file.read)
+  previous_timestamp = nil
   hash.each do |v|
-    sleep(0.5)
+    sec = previous_timestamp == nil ? 0.5 : v['timestamp'] - previous_timestamp
+    sleep(sec)
     timestamp = Time.now.to_f
     1.times do |_i|
       firebase.push("v1/locations/#{COMPETITION_ID}/#{car_id}", {
@@ -141,6 +143,7 @@ def simulate_okayama(car_id)
         course: v['course']
       })
     end
+    previous_timestamp = v['timestamp']
   end
 end
 
