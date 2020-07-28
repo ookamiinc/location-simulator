@@ -11,6 +11,7 @@ COMPETITION_ID = 1
 CAR_ID = 1
 
 OKAYAMA_CARS = [15, 20, 21, 24, 25, 31, 36, 51, 60, 77, 98]
+SUGO_CARS = [15, 20, 21, 24, 25, 31, 36, 60, 77, 98]
 
 def simulate(car_id, number_of_same_location = 1, delay = 0, use_same_time_for_same_location = true)
   last_lat = nil
@@ -147,10 +148,36 @@ def simulate_okayama(car_id)
   end
 end
 
+def simulate_sugo(car_id)
+  file = File.open("sugo-unique-by-timestamp/#{car_id}.json")
+  hash = JSON.parse(file.read)
+  hash.each do |v|
+    sleep(0.5)
+    timestamp = Time.now.to_f
+    1.times do |_i|
+      firebase.push("v1/locations/#{COMPETITION_ID}/#{car_id}", {
+        latitude: v['latitude'],
+        longitude: v['longitude'],
+        speed: v['speed'],
+        timestamp: timestamp,
+        course: v['course']
+      })
+    end
+  end
+end
+
 def simulate_okayama_11_cars
   threads = []
   OKAYAMA_CARS.each do |i|
     threads << Thread.new { simulate_okayama(i) }
+  end
+  threads.each { |t| t.join }
+end
+
+def simulate_sugo_10_cars
+  threads = []
+  SUGO_CARS.each do |i|
+    threads << Thread.new { simulate_sugo(i) }
   end
   threads.each { |t| t.join }
 end
@@ -186,4 +213,5 @@ end
 # simulate_okayama_cars_with_delay
 # simulate_okayama_cars_with_same_location_on_same_time
 # simulate_okayama_cars_with_same_location_on_different_time
-simulate_okayama_11_cars
+# simulate_okayama_11_cars
+simulate_sugo_10_cars
